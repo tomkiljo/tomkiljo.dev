@@ -1,0 +1,24 @@
+{
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "clean": "turbo run clean",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md,mdx}\""
+  },
+  "devDependencies": {
+    "eslint": "^8.36.0",
+    "eslint-config-custom": "*",
+    "prettier": "^2.8.4",
+    "turbo": "latest"
+  },
+  "engines": {
+    "node": ">=18.0"
+  },
+  "packageManager": "npm@9.3.1"
+}
