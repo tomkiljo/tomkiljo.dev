@@ -1,24 +1,21 @@
 {
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/*"
   ],
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md,mdx}\""
+    "format": "prettier --write \"**/*.{js,mjs,cjs,ts,tsx,css,json,md,mdx,yaml,yml}\""
   },
   "devDependencies": {
-    "eslint": "^8.36.0",
-    "eslint-config-custom": "*",
-    "prettier": "^2.8.4",
-    "turbo": "latest"
+    "prettier": "3.8.1",
+    "turbo": "2.8.12"
   },
   "engines": {
-    "node": ">=18.0"
+    "node": ">=24.0.0"
   },
-  "packageManager": "npm@9.3.1"
+  "packageManager": "npm@11.2.0"
 }
