@@ -1,7 +1,6 @@
 import os from "node:os";
 
 export type SystemInfo = {
-  timestamp: Date;
   runtime: string;
   cpuCount: string;
   uptime: string;
@@ -34,7 +33,6 @@ export const getSystemInfo = (): SystemInfo => {
   const memoryTotalGb = `${(totalMem / 1024 ** 3).toFixed(1)} GB`;
 
   return {
-    timestamp: new Date(),
     runtime: `${runtimeName} ${runtimeVersion}`,
     cpuCount,
     uptime,

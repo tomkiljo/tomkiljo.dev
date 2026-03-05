@@ -5,7 +5,9 @@ type LinkProps = {
 
 function Link({ href, children }: LinkProps) {
   return (
-    <a fg="blue" href={href}>{children || href}</a>
+    <a fg="blue" href={href}>
+      {children || href}
+    </a>
   );
 }
 

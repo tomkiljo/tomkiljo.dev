@@ -1,6 +1,6 @@
 import fs from "node:fs";
+import { createRequire } from "node:module";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
 
 export type JournalEntry = {
   slug: string;
@@ -14,7 +14,8 @@ type FrontMatter = {
   date?: string;
 };
 
-const JOURNAL_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "..", "content", "journal");
+const require = createRequire(import.meta.url);
+const JOURNAL_DIR = path.join(path.dirname(require.resolve("content/package.json")), "journal");
 
 const parseFrontMatter = (rawContent: string) => {
   if (!rawContent.startsWith("---\n")) {
@@ -39,7 +40,10 @@ const parseFrontMatter = (rawContent: string) => {
     }
 
     const key = line.slice(0, separatorIndex).trim();
-    const value = line.slice(separatorIndex + 1).trim().replace(/^['\"]|['\"]$/g, "");
+    const value = line
+      .slice(separatorIndex + 1)
+      .trim()
+      .replace(/^['\"]|['\"]$/g, "");
 
     if (key === "title") {
       frontMatter.title = value;

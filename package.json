@@ -1,8 +1,5 @@
 {
   "private": true,
-  "workspaces": [
-    "apps/*"
-  ],
   "scripts": {
     "build": "turbo run build",
     "clean": "turbo run clean",
@@ -17,5 +14,15 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "packageManager": "npm@11.2.0"
+  "pnpm": {
+    "overrides": {
+      "@libsql/client": "0.17.0"
+    },
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp",
+      "unrs-resolver"
+    ]
+  },
+  "packageManager": "pnpm@10.0.0"
 }

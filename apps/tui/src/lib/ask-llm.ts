@@ -1,11 +1,3 @@
-type ChatCompletionResponse = {
-  choices?: Array<{
-    message?: {
-      content?: string;
-    };
-  }>;
-};
-
 type ChatCompletionStreamChunk = {
   choices?: Array<{
     delta?: {
@@ -63,54 +55,19 @@ export const isLlmOnline = async (timeoutMs = 1500) => {
       fallbackController.abort();
     }, timeoutMs);
 
-    const modelsResponse = await fetch(buildOpenAiPath(baseUrl, "/models"), {
-      method: "GET",
-      signal: fallbackController.signal,
-    });
-    clearTimeout(fallbackTimeout);
+    try {
+      const modelsResponse = await fetch(buildOpenAiPath(baseUrl, "/models"), {
+        method: "GET",
+        signal: fallbackController.signal,
+      });
 
-    return modelsResponse.ok;
+      return modelsResponse.ok;
+    } finally {
+      clearTimeout(fallbackTimeout);
+    }
   } catch {
     return false;
   }
-};
-
-export const askLlm = async (question: string) => {
-  const { baseUrl, model } = getAskConfig();
-
-  const response = await fetch(buildOpenAiPath(baseUrl, "/chat/completions"), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: "system",
-          content: "You are a concise and helpful assistant.",
-        },
-        {
-          role: "user",
-          content: question,
-        },
-      ],
-    }),
-  });
-
-  if (!response.ok) {
-    const details = await response.text();
-    throw new Error(`LLM request failed (${response.status}): ${details || "Unknown error"}`);
-  }
-
-  const data = (await response.json()) as ChatCompletionResponse;
-  const content = data.choices?.[0]?.message?.content?.trim();
-
-  if (!content) {
-    throw new Error("LLM response did not contain any content.");
-  }
-
-  return content;
 };
 
 type AskLlmStreamOptions = {
@@ -131,7 +88,8 @@ export const askLlmStream = async (question: string, options: AskLlmStreamOption
       messages: [
         {
           role: "system",
-          content: "You are a concise and helpful assistant. You anwer questions about Tom Kiljo's background, experience and skills based on the information available at https://tomkiljo.dev.",
+          content:
+            "You are a concise and helpful assistant. You answer questions about Tom Kiljo's background, experience, and skills based on the information available at https://tomkiljo.dev.",
         },
         {
           role: "user",

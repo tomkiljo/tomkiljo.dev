@@ -122,7 +122,7 @@ function JournalScreen() {
             <span fg="cyan">Journal</span>
           </text>
           <text>No journal entries found.</text>
-          <text>Add markdown files under src/content/journal with front matter.</text>
+          <text>Add markdown files under packages/content/journal with front matter.</text>
         </box>
         <Navbar />
       </>
@@ -130,58 +130,63 @@ function JournalScreen() {
   }
 
   return (
-    <>
-      <box flexDirection="column" flexGrow={1} paddingX={2} paddingY={1} gap={1}>
-        <box flexDirection="row" flexGrow={1} gap={1}>
-          <box flexDirection="column" flexShrink={0} paddingRight={2} border={["right"]} borderColor="cyan" gap={1}>
-            {entries.map((entry, index) => {
-              const active = index === activeIndex;
-              return (
-                <box key={entry.slug} flexDirection="column">
-                  <text>
-                    <span fg={active ? "cyan" : "gray"}>{active ? "▶ " : "  "}</span>
-                    <span fg={active ? "cyan" : "gray"}>{entry.title}</span>
-                  </text>
-                  <text>
-                    <span fg="gray">{"  "}</span>
-                    <span fg={active ? "white" : "gray"}>{entry.date}</span>
-                  </text>
-                </box>
-              );
-            })}
-          </box>
-          <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1} gap={1}>
-            <box
-              flexDirection="column"
-              flexShrink={0}
-              border={["bottom"]}
-              borderColor="gray"
-              paddingBottom={1}
-              gap={0}
-            >
-              <text fg="cyan">{activeEntry.title}</text>
-              <text fg="gray">{formatEntryDate(activeEntry.date)}</text>
-            </box>
-            <scrollbox ref={contentScrollRef} flexGrow={1} scrollY>
-              <markdown
-                key={activeEntry.slug}
-                content={activeEntry.body}
-                syntaxStyle={syntaxStyle}
-                conceal
-              />
-            </scrollbox>
-          </box>
+    <box flexDirection="column" flexGrow={1} paddingX={2} paddingY={1} gap={1}>
+      <box flexDirection="row" flexGrow={1} gap={1}>
+        <box
+          flexDirection="column"
+          flexShrink={0}
+          paddingRight={2}
+          border={["right"]}
+          borderColor="cyan"
+          gap={1}
+        >
+          {entries.map((entry, index) => {
+            const active = index === activeIndex;
+            return (
+              <box key={entry.slug} flexDirection="column">
+                <text>
+                  <span fg={active ? "cyan" : "gray"}>{active ? "▶ " : "  "}</span>
+                  <span fg={active ? "cyan" : "gray"}>{entry.title}</span>
+                </text>
+                <text>
+                  <span fg="gray">{"  "}</span>
+                  <span fg={active ? "white" : "gray"}>{entry.date}</span>
+                </text>
+              </box>
+            );
+          })}
         </box>
-        <Navbar>
-          <text fg="white">
-            ←/→: <span fg="gray">prev/next</span>
-          </text>
-          <text fg="white">
-            ↑/↓: <span fg="gray">scroll</span>
-          </text>
-        </Navbar>
+        <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1} gap={1}>
+          <box
+            flexDirection="column"
+            flexShrink={0}
+            border={["bottom"]}
+            borderColor="gray"
+            paddingBottom={1}
+            gap={0}
+          >
+            <text fg="cyan">{activeEntry.title}</text>
+            <text fg="gray">{formatEntryDate(activeEntry.date)}</text>
+          </box>
+          <scrollbox ref={contentScrollRef} flexGrow={1} scrollY>
+            <markdown
+              key={activeEntry.slug}
+              content={activeEntry.body}
+              syntaxStyle={syntaxStyle}
+              conceal
+            />
+          </scrollbox>
+        </box>
       </box>
-    </>
+      <Navbar>
+        <text fg="white">
+          ←/→: <span fg="gray">prev/next</span>
+        </text>
+        <text fg="white">
+          ↑/↓: <span fg="gray">scroll</span>
+        </text>
+      </Navbar>
+    </box>
   );
 }
 
