@@ -37,7 +37,11 @@ yarn-error.log*
 next-env.d.ts
 
 # node
-dist/
+dist
 
 # local models
 .models
+
+# mastra
+.mastra
+**/mastra/public

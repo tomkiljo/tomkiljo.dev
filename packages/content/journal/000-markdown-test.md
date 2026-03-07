@@ -1,9 +1,10 @@
 ---
-title: Markdown Basics Test
+title: Markdown Test
 date: 2026-03-03
+skipIndexing: true
 ---
 
-# Markdown Basics Test
+# Markdown Test
 
 This entry tests **bold**, _italic_, and `inline code`.
 
