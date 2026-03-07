@@ -5,17 +5,23 @@
   "type": "module",
   "scripts": {
     "dev": "bun --watch run src/main.tsx",
+    "dev:ssh": "tsx watch src/ssh-server.ts",
+    "start:ssh": "tsx src/ssh-server.ts",
     "build": "tsc --noEmit",
     "lint": "echo \"No lint configured for tui\""
   },
   "dependencies": {
+    "@homebridge/node-pty-prebuilt-multiarch": "^0.13.1",
     "@opentui/core": "0.1.84",
     "@opentui/react": "0.1.84",
     "content": "workspace:*",
-    "react": "19.2.4"
+    "react": "19.2.4",
+    "ssh2": "^1.17.0"
   },
   "devDependencies": {
     "@types/node": "25.3.3",
+    "@types/ssh2": "^1.15.5",
+    "tsx": "^4.21.0",
     "typescript": "5.9.3"
   }
 }

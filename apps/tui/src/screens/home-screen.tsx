@@ -9,6 +9,7 @@ import { PANEL_BG_COLOR } from "../lib/ui-constants";
 type HomeScreenProps = {
   systemInfo: SystemInfo;
   llmOnline: boolean;
+  sshSessionCount: number | null;
   agentSystemInfo: AgentServerInfo | null;
   onOpenAsk: () => void;
   onOpenJournal: () => void;
@@ -18,6 +19,7 @@ type HomeScreenProps = {
 function HomeScreen({
   systemInfo,
   llmOnline,
+  sshSessionCount,
   agentSystemInfo,
   onOpenAsk,
   onOpenJournal,
@@ -150,6 +152,10 @@ function HomeScreen({
             <text>
               <span fg="green">●</span> Memory usage: {systemInfo.memoryUsage}% of{" "}
               {systemInfo.memoryTotalGb}
+            </text>
+            <text>
+              <span fg={sshSessionCount === null ? "gray" : "green"}>●</span> Logged in users:{" "}
+              {sshSessionCount === null ? <span fg="gray">unavailable</span> : sshSessionCount}
             </text>
           </box>
           <text fg="cyan">

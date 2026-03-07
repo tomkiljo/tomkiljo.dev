@@ -1,6 +1,6 @@
 import { useKeyboard } from "@opentui/react";
 import { useEffect, useState } from "react";
-import { getSystemInfo } from "./lib/system-info";
+import { getSshSessionCount, getSystemInfo } from "./lib/system-info";
 import { getAgentSystemInfo, isLlmOnline } from "./lib/agent";
 import HomeScreen from "./screens/home-screen";
 import AskScreen from "./screens/ask-screen";
@@ -15,6 +15,7 @@ function App({ onQuit }: AppProps) {
   const [screen, setScreen] = useState<"home" | "ask" | "journal">("home");
   const [journalInitialSlug, setJournalInitialSlug] = useState<string | undefined>(undefined);
   const [llmOnline, setLlmOnline] = useState(false);
+  const [sshSessionCount, setSshSessionCount] = useState<number | null>(null);
   const [agentSystemInfo, setAgentSystemInfo] =
     useState<Awaited<ReturnType<typeof getAgentSystemInfo>>>(null);
 
@@ -100,6 +101,27 @@ function App({ onQuit }: AppProps) {
   useEffect(() => {
     let disposed = false;
 
+    const refreshSshSessions = async () => {
+      const count = await getSshSessionCount();
+      if (!disposed) {
+        setSshSessionCount(count);
+      }
+    };
+
+    void refreshSshSessions();
+    const interval = setInterval(() => {
+      void refreshSshSessions();
+    }, 10_000);
+
+    return () => {
+      disposed = true;
+      clearInterval(interval);
+    };
+  }, []);
+
+  useEffect(() => {
+    let disposed = false;
+
     const refreshAgentSystemInfo = async () => {
       const info = await getAgentSystemInfo();
       if (!disposed) {
@@ -124,6 +146,7 @@ function App({ onQuit }: AppProps) {
         <HomeScreen
           systemInfo={systemInfo}
           llmOnline={llmOnline}
+          sshSessionCount={sshSessionCount}
           agentSystemInfo={agentSystemInfo}
           onOpenAsk={openAsk}
           onOpenJournal={openJournal}

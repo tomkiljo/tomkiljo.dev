@@ -40,3 +40,23 @@ export const getSystemInfo = (): SystemInfo => {
     memoryTotalGb,
   };
 };
+
+export const getSshSessionCount = async (): Promise<number | null> => {
+  const statusUrl = process.env.TUI_SSH_STATUS_URL ?? "http://127.0.0.1:39217/status";
+
+  try {
+    const response = await fetch(statusUrl);
+    if (!response.ok) {
+      return null;
+    }
+
+    const body = (await response.json()) as { activeSshSessions?: unknown };
+    if (typeof body.activeSshSessions !== "number") {
+      return null;
+    }
+
+    return body.activeSshSessions;
+  } catch {
+    return null;
+  }
+};
