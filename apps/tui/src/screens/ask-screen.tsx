@@ -12,11 +12,7 @@ type Message = {
 };
 
 const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-const LOADING_STEPS = [
-  "Thinking...",
-  "Reviewing context...",
-  "Working on a response...",
-];
+const LOADING_STEPS = ["Thinking...", "Reviewing context...", "Working on a response..."];
 
 function AskScreen() {
   const [question, setQuestion] = useState("");
@@ -130,29 +126,14 @@ function AskScreen() {
         )}
         {messages.map((msg, index) =>
           msg.role === "user" ? (
-            <box
-              key={msg.id}
-              border={["left"]}
-              borderColor="cyan"
-              marginTop={index === 0 ? 0 : 1}
-            >
+            <box key={msg.id} border={["left"]} borderColor="cyan" marginTop={index === 0 ? 0 : 1}>
               <box paddingTop={1} paddingBottom={1} paddingLeft={2}>
                 <text fg="white">{msg.text}</text>
               </box>
             </box>
           ) : (
-            <box
-              key={msg.id}
-              paddingLeft={3}
-              paddingTop={1}
-              flexShrink={0}
-              flexDirection="column"
-            >
-              <markdown
-                content={msg.text}
-                syntaxStyle={syntaxStyle}
-                conceal
-              />
+            <box key={msg.id} paddingLeft={3} paddingTop={1} flexShrink={0} flexDirection="column">
+              <markdown content={msg.text} syntaxStyle={syntaxStyle} conceal />
               <text marginTop={1}>
                 <span fg="magenta">▣ </span>
                 <span fg="gray">content-chat-agent</span>
@@ -190,7 +171,10 @@ function AskScreen() {
             />
             <box flexDirection="row" flexShrink={0} paddingTop={1} gap={1}>
               <text fg="cyan">Ask </text>
-              <text fg="gray">content-chat-agent (<span fg={llmOnline ? "green" : "gray"}>{llmOnline ? "online" : "offline"}</span>)</text>
+              <text fg="gray">
+                content-chat-agent (
+                <span fg={llmOnline ? "green" : "gray"}>{llmOnline ? "online" : "offline"}</span>)
+              </text>
             </box>
           </box>
         </box>

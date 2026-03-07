@@ -3,11 +3,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
-import {
-  CONTENT_ROOT,
-  EMBEDDING_DIMENSION,
-  embeddingModelConfig,
-} from "../config";
+import { CONTENT_ROOT, EMBEDDING_DIMENSION, embeddingModelConfig } from "../config";
 import { contentVectorStore, CONTENT_INDEX_NAME } from "../lib/vector-store";
 import { LlamaCppEmbeddingModel } from "../lib/llamacpp";
 
@@ -104,7 +100,7 @@ const chunkMarkdownStep = createStep({
     chunks: z.array(chunkSchema),
   }),
   execute: async ({ inputData }) => {
-    const chunks = inputData.documents.flatMap(document => {
+    const chunks = inputData.documents.flatMap((document) => {
       const parts = chunkText(document.content);
       return parts.map((text, index) => {
         const chunkId = `${document.documentId}:${String(index + 1).padStart(4, "0")}`;
@@ -123,7 +119,7 @@ const chunkMarkdownStep = createStep({
     return {
       contentRoot: inputData.contentRoot,
       purgeDocumentIds: inputData.purgeDocumentIds,
-      documentIds: inputData.documents.map(document => document.documentId),
+      documentIds: inputData.documents.map((document) => document.documentId),
       chunks,
     };
   },
@@ -177,7 +173,7 @@ const storeEmbeddingsStep = createStep({
     const embeddingModel = new LlamaCppEmbeddingModel(embeddingModelConfig);
 
     const vectors: number[][] = [];
-    const texts = inputData.chunks.map(chunk => chunk.text);
+    const texts = inputData.chunks.map((chunk) => chunk.text);
     const batchSize = 128;
 
     for (let startIndex = 0; startIndex < texts.length; startIndex += batchSize) {
@@ -188,9 +184,9 @@ const storeEmbeddingsStep = createStep({
 
     await contentVectorStore.upsert({
       indexName: CONTENT_INDEX_NAME,
-      ids: inputData.chunks.map(chunk => chunk.id),
+      ids: inputData.chunks.map((chunk) => chunk.id),
       vectors,
-      metadata: inputData.chunks.map(chunk => ({ text: chunk.text, ...chunk.metadata })),
+      metadata: inputData.chunks.map((chunk) => ({ text: chunk.text, ...chunk.metadata })),
     });
 
     return {
@@ -403,21 +399,22 @@ const slugFromBasename = (basename: string) =>
     .replace(/^-+|-+$/g, "");
 
 const humanizeTitle = (basename: string) => {
-  const parts = basename.replace(/\.[^.]+$/, "").split(/[-_]+/g).filter(Boolean);
+  const parts = basename
+    .replace(/\.[^.]+$/, "")
+    .split(/[-_]+/g)
+    .filter(Boolean);
   if (parts.length === 0) {
     return "Untitled";
   }
 
-  return parts
-    .map(part => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`)
-    .join(" ");
+  return parts.map((part) => `${part[0]?.toUpperCase() ?? ""}${part.slice(1)}`).join(" ");
 };
 
 const collectMarkdownFiles = async (rootDir: string): Promise<string[]> => {
   const dirEntries = await readdir(rootDir, { withFileTypes: true });
 
   const nested = await Promise.all(
-    dirEntries.map(async entry => {
+    dirEntries.map(async (entry) => {
       const fullPath = path.join(rootDir, entry.name);
       if (entry.isDirectory()) {
         return collectMarkdownFiles(fullPath);
@@ -428,7 +425,7 @@ const collectMarkdownFiles = async (rootDir: string): Promise<string[]> => {
       }
 
       return [];
-    }),
+    })
   );
 
   return nested.flat();

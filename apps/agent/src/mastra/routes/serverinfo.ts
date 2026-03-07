@@ -44,7 +44,7 @@ export const getSystemInfo = (): SystemInfo => {
 
 const route = registerApiRoute("/serverinfo", {
   method: "GET",
-  handler: async ctx => {
+  handler: async (ctx) => {
     const systemInfo = getSystemInfo();
     return ctx.json({
       ...systemInfo,

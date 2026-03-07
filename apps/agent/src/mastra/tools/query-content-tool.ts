@@ -1,7 +1,12 @@
 import { ModelRouterEmbeddingModel, ModelRouterLanguageModel } from "@mastra/core/llm";
 import { createTool } from "@mastra/core/tools";
 import { z } from "zod";
-import { embeddingModelConfig, rerankerModelConfig, RERANKER_BASE_URL, RERANKER_MODEL } from "../config";
+import {
+  embeddingModelConfig,
+  rerankerModelConfig,
+  RERANKER_BASE_URL,
+  RERANKER_MODEL,
+} from "../config";
 import { contentVectorStore, CONTENT_INDEX_NAME } from "../lib/vector-store";
 import { LlamaCppRerankerModel, rerank } from "../lib/llamacpp-reranker";
 import { LlamaCppEmbeddingModel } from "../lib/llamacpp";
@@ -29,7 +34,7 @@ export const queryContentTool = createTool({
         dateCreated: z.string(),
         dateModified: z.string(),
         dateUpdated: z.string(),
-      }),
+      })
     ),
     total: z.number(),
   }),

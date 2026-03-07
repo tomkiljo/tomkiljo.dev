@@ -70,15 +70,14 @@ function HomeScreen({
               <b>Profile</b>
             </text>
             <text>
-              <span fg="magenta">◈</span> Full-spectrum developer and devx
-              enthusiast
+              <span fg="magenta">◈</span> Full-spectrum developer and devx enthusiast
             </text>
             <text>
               <span fg="magenta">◈</span> Focusing on platform building, backends, devops tooling
             </text>
             <text>
               <span fg="magenta">◈</span> Principal Software Architect at{" "}
-              <Link href="https://nitor.com"/>
+              <Link href="https://nitor.com" />
             </text>
           </box>
           <box flexDirection="column">
@@ -92,7 +91,8 @@ function HomeScreen({
               <span fg="cyan">→</span> LinkedIn: <Link href="https://linkedin.com/in/tomkiljo" />
             </text>
             <text>
-              <span fg="cyan">→</span> Email: <Link href="mailto:hi@tomkiljo.dev">hi@tomkiljo.dev</Link>
+              <span fg="cyan">→</span> Email:{" "}
+              <Link href="mailto:hi@tomkiljo.dev">hi@tomkiljo.dev</Link>
             </text>
           </box>
           <box flexDirection="column">
@@ -127,8 +127,16 @@ function HomeScreen({
             </box>
           </box>
         </box>
-        <box flexDirection="column" paddingX={2} paddingY={1} gap={1} backgroundColor={PANEL_BG_COLOR}>
-          <text fg="cyan"><b>System information</b></text>
+        <box
+          flexDirection="column"
+          paddingX={2}
+          paddingY={1}
+          gap={1}
+          backgroundColor={PANEL_BG_COLOR}
+        >
+          <text fg="cyan">
+            <b>System information</b>
+          </text>
           <box flexDirection="column">
             <text>
               <span fg="green">●</span> Runtime: {systemInfo.runtime}
@@ -144,7 +152,9 @@ function HomeScreen({
               {systemInfo.memoryTotalGb}
             </text>
           </box>
-          <text fg="cyan"><b>Agent information</b></text>
+          <text fg="cyan">
+            <b>Agent information</b>
+          </text>
           <box flexDirection="column">
             {agentSystemInfo ? (
               <>
@@ -171,8 +181,12 @@ function HomeScreen({
         </box>
       </box>
       <Navbar>
-        <text fg="white">↑/↓: <span fg="gray">select</span></text>
-        <text fg="white">enter: <span fg="gray">open</span></text>
+        <text fg="white">
+          ↑/↓: <span fg="gray">select</span>
+        </text>
+        <text fg="white">
+          enter: <span fg="gray">open</span>
+        </text>
       </Navbar>
     </box>
   );

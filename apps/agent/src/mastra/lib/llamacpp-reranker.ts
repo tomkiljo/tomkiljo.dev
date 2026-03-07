@@ -41,7 +41,11 @@ const parseRerankResponse = (payload: unknown): LlamaCppRerankItem[] => {
         (row as { relevance_score?: unknown }).relevance_score ??
         (row as { relevanceScore?: unknown }).relevanceScore;
 
-      if (!Number.isInteger(index) || typeof relevanceScore !== "number" || Number.isNaN(relevanceScore)) {
+      if (
+        !Number.isInteger(index) ||
+        typeof relevanceScore !== "number" ||
+        Number.isNaN(relevanceScore)
+      ) {
         return undefined;
       }
 
@@ -93,7 +97,7 @@ export const rerank = async <T extends { metadata?: { text?: unknown }; score?: 
   client: LlamaCppRerankerModel,
   query: string,
   initialResults: T[],
-  topN: number,
+  topN: number
 ): Promise<RankedResult<T>[]> => {
   const rankedEntries = initialResults.map((result) => ({
     result,
@@ -107,7 +111,11 @@ export const rerank = async <T extends { metadata?: { text?: unknown }; score?: 
   const documents = initialResults.map((result) => String(result.metadata?.text ?? ""));
 
   try {
-    const rerankResults = await client.doRerank(query, documents, Math.min(topN, initialResults.length));
+    const rerankResults = await client.doRerank(
+      query,
+      documents,
+      Math.min(topN, initialResults.length)
+    );
     if (rerankResults.length === 0) {
       return rankedEntries;
     }

@@ -15,9 +15,8 @@ function App({ onQuit }: AppProps) {
   const [screen, setScreen] = useState<"home" | "ask" | "journal">("home");
   const [journalInitialSlug, setJournalInitialSlug] = useState<string | undefined>(undefined);
   const [llmOnline, setLlmOnline] = useState(false);
-  const [agentSystemInfo, setAgentSystemInfo] = useState<Awaited<ReturnType<typeof getAgentSystemInfo>>>(
-    null
-  );
+  const [agentSystemInfo, setAgentSystemInfo] =
+    useState<Awaited<ReturnType<typeof getAgentSystemInfo>>>(null);
 
   const openAsk = () => {
     setScreen("ask");

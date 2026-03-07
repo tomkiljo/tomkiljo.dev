@@ -31,8 +31,8 @@ export const mastra = new Mastra({
       default: {
         serviceName: "mastra-agent",
         exporters: [new DefaultExporter()],
-      }
-    }
+      },
+    },
   }),
   server: {
     apiRoutes: [serverinfo],

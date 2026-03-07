@@ -7,7 +7,8 @@ export type AgentServerInfo = {
 };
 
 const getAgentConfig = () => {
-  const baseUrl = process.env.MASTRA_API_BASE_URL ?? process.env.LLM_API_BASE_URL ?? "http://localhost:4111";
+  const baseUrl =
+    process.env.MASTRA_API_BASE_URL ?? process.env.LLM_API_BASE_URL ?? "http://localhost:4111";
   const agentId = process.env.MASTRA_AGENT_ID ?? "content-chat-agent";
 
   return {
@@ -126,7 +127,9 @@ export const askLlmStream = async (question: string, options: AskLlmStreamOption
 
   if (!response.ok) {
     const details = await response.text();
-    throw new Error(`Mastra agent request failed (${response.status}): ${details || "Unknown error"}`);
+    throw new Error(
+      `Mastra agent request failed (${response.status}): ${details || "Unknown error"}`
+    );
   }
 
   const payload = (await response.json()) as {

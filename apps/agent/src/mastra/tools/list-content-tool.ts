@@ -19,7 +19,7 @@ export const listIndexedContentTool = createTool({
         dateCreated: z.string(),
         dateModified: z.string(),
         dateUpdated: z.string(),
-      }),
+      })
     ),
     count: z.number(),
     message: z.string().optional(),
@@ -68,7 +68,8 @@ export const listIndexedContentTool = createTool({
       }
 
       const documents = Array.from(documentsById.values()).sort(
-        (a, b) => compareDatesDesc(a.dateUpdated, b.dateUpdated) || a.sourceFile.localeCompare(b.sourceFile),
+        (a, b) =>
+          compareDatesDesc(a.dateUpdated, b.dateUpdated) || a.sourceFile.localeCompare(b.sourceFile)
       );
 
       if (documents.length === 0) {
@@ -87,7 +88,8 @@ export const listIndexedContentTool = createTool({
       return {
         documents: [],
         count: 0,
-        message: "Could not read indexed content. Ensure the index exists and embedding server is running.",
+        message:
+          "Could not read indexed content. Ensure the index exists and embedding server is running.",
       };
     }
   },
