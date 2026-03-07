@@ -125,8 +125,7 @@ function HomeScreen({
                 );
               })}
             </box>
-          </box>          
-          <text fg="gray">↑/↓ select, enter open</text>
+          </box>
         </box>
         <box flexDirection="column" paddingX={2} paddingY={1} gap={1} backgroundColor={PANEL_BG_COLOR}>
           <text fg="cyan"><b>System information</b></text>
@@ -171,7 +170,10 @@ function HomeScreen({
           </box>
         </box>
       </box>
-      <Navbar />
+      <Navbar>
+        <text fg="white">↑/↓: <span fg="gray">select</span></text>
+        <text fg="white">enter: <span fg="gray">open</span></text>
+      </Navbar>
     </box>
   );
 }

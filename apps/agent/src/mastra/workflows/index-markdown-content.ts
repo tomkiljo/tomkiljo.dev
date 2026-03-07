@@ -17,6 +17,9 @@ const sourceDocumentSchema = z.object({
   sourceFile: z.string(),
   sourceLink: z.string(),
   section: z.string(),
+  dateCreated: z.string(),
+  dateModified: z.string(),
+  dateUpdated: z.string(),
   content: z.string(),
 });
 
@@ -55,6 +58,9 @@ const scanMarkdownStep = createStep({
       const slug = parsed.frontmatter.slug ?? slugFromBasename(basename);
       const sourceLink = parsed.frontmatter.link ?? `/${section}/${slug}`;
       const title = parsed.frontmatter.title ?? humanizeTitle(basename);
+      const dateCreated = parsed.frontmatter.dateCreated ?? parsed.frontmatter.date ?? "";
+      const dateModified = parsed.frontmatter.dateModified ?? dateCreated;
+      const dateUpdated = dateModified || dateCreated;
       const documentId = `md-${createHash("sha256").update(normalizedSourceFile).digest("hex").slice(0, 16)}`;
 
       purgeDocumentIds.push(documentId);
@@ -68,6 +74,9 @@ const scanMarkdownStep = createStep({
         sourceFile: normalizedSourceFile,
         sourceLink,
         section,
+        dateCreated,
+        dateModified,
+        dateUpdated,
         content: parsed.content,
       });
     }

@@ -1,6 +1,7 @@
 ---
 title: Markdown Test
-date: 2026-03-03
+dateCreated: 2026-03-03
+dateModified: 2026-03-03
 skipIndexing: true
 ---
 

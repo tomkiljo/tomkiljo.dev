@@ -26,6 +26,9 @@ export const queryContentTool = createTool({
         section: z.string(),
         documentId: z.string(),
         chunkIndex: z.number().optional(),
+        dateCreated: z.string(),
+        dateModified: z.string(),
+        dateUpdated: z.string(),
       }),
     ),
     total: z.number(),
@@ -59,6 +62,9 @@ export const queryContentTool = createTool({
       chunkIndex: Number.isFinite(result.metadata?.chunkIndex)
         ? Number(result.metadata?.chunkIndex)
         : undefined,
+      dateCreated: String(result.metadata?.dateCreated ?? ""),
+      dateModified: String(result.metadata?.dateModified ?? ""),
+      dateUpdated: String(result.metadata?.dateUpdated ?? ""),
     }));
 
     return {

@@ -4,7 +4,7 @@ type NavbarProps = {
 
 function Navbar({ children }: NavbarProps) {
   return (
-    <box flexDirection="row" justifyContent="space-between">
+    <box flexDirection="row" justifyContent="space-between" flexShrink={0}>
       <box flexDirection="row" gap={2}>
         <text fg="white">
           esc: <span fg="gray">home</span>

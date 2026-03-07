@@ -5,13 +5,17 @@ import path from "node:path";
 export type JournalEntry = {
   slug: string;
   title: string;
-  date: string;
+  dateCreated: string;
+  dateModified: string;
+  dateUpdated: string;
   body: string;
 };
 
 type FrontMatter = {
   title?: string;
   date?: string;
+  dateCreated?: string;
+  dateModified?: string;
 };
 
 const require = createRequire(import.meta.url);
@@ -52,6 +56,14 @@ const parseFrontMatter = (rawContent: string) => {
     if (key === "date") {
       frontMatter.date = value;
     }
+
+    if (key === "dateCreated") {
+      frontMatter.dateCreated = value;
+    }
+
+    if (key === "dateModified") {
+      frontMatter.dateModified = value;
+    }
   }
 
   return {
@@ -65,10 +77,7 @@ export const getJournalEntries = (): JournalEntry[] => {
     return [];
   }
 
-  const files = fs
-    .readdirSync(JOURNAL_DIR)
-    .filter((fileName) => fileName.endsWith(".md"))
-    .sort((a, b) => b.localeCompare(a));
+  const files = fs.readdirSync(JOURNAL_DIR).filter((fileName) => fileName.endsWith(".md"));
 
   const entries: JournalEntry[] = [];
 
@@ -82,17 +91,38 @@ export const getJournalEntries = (): JournalEntry[] => {
       continue;
     }
 
-    if (!parsed.frontMatter.title || !parsed.frontMatter.date) {
+    const dateCreated = parsed.frontMatter.dateCreated ?? parsed.frontMatter.date;
+    const dateModified = parsed.frontMatter.dateModified ?? dateCreated;
+
+    if (!parsed.frontMatter.title || !dateCreated || !dateModified) {
       continue;
     }
 
     entries.push({
       slug,
       title: parsed.frontMatter.title,
-      date: parsed.frontMatter.date,
+      dateCreated,
+      dateModified,
+      dateUpdated: dateModified,
       body: parsed.body,
     });
   }
 
-  return entries;
+  return entries.sort((a, b) => compareDatesDesc(a.dateUpdated, b.dateUpdated));
+};
+
+const compareDatesDesc = (a: string, b: string) => {
+  const aTime = dateToTimestamp(a);
+  const bTime = dateToTimestamp(b);
+
+  if (aTime !== bTime) {
+    return bTime - aTime;
+  }
+
+  return b.localeCompare(a);
+};
+
+const dateToTimestamp = (value: string) => {
+  const timestamp = Date.parse(`${value}T00:00:00Z`);
+  return Number.isNaN(timestamp) ? 0 : timestamp;
 };

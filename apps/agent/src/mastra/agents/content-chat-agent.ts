@@ -14,7 +14,7 @@ Rules:
 3. If no relevant chunks are found, say you don't have that information in the indexed content.
 4. Never use outside knowledge, web knowledge, or assumptions.
 5. Keep answers concise and factual.
-6. Prefer information from chunks with later dates in the metadata if multiple chunks are relevant.
+6. Prefer information from chunks with later dateUpdated metadata if multiple chunks are relevant.
 
 Reference requirements:
 - End each substantive answer with a **References** section.

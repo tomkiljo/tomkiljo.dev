@@ -7,6 +7,11 @@ import { syntaxStyle } from "../lib/markdown";
 
 function formatEntryDate(dateStr: string): string {
   const date = new Date(`${dateStr}T00:00:00`);
+
+  if (Number.isNaN(date.getTime())) {
+    return dateStr;
+  }
+
   return new Intl.DateTimeFormat("en-US", {
     weekday: "long",
     day: "numeric",
@@ -88,8 +93,8 @@ function JournalScreen({ initialSlug }: JournalScreenProps) {
   }
 
   return (
-    <box flexDirection="column" flexGrow={1} paddingX={2} paddingY={1} gap={1}>
-      <box flexDirection="row" flexGrow={1} gap={1}>
+    <box flexDirection="column" flexGrow={1} minHeight={0} paddingX={2} paddingY={1} gap={1}>
+      <box flexDirection="row" flexGrow={1} minHeight={0} gap={1}>
         <box
           flexDirection="column"
           flexShrink={0}
@@ -108,13 +113,20 @@ function JournalScreen({ initialSlug }: JournalScreenProps) {
                 </text>
                 <text>
                   <span fg="gray">{"  "}</span>
-                  <span fg={active ? "white" : "gray"}>{entry.date}</span>
+                  <span fg={active ? "white" : "gray"}>{entry.dateUpdated}</span>
                 </text>
               </box>
             );
           })}
         </box>
-        <box flexDirection="column" flexGrow={1} paddingLeft={1} paddingRight={1} gap={1}>
+        <box
+          flexDirection="column"
+          flexGrow={1}
+          minHeight={0}
+          paddingLeft={1}
+          paddingRight={1}
+          gap={1}
+        >
           <box
             flexDirection="column"
             flexShrink={0}
@@ -124,9 +136,10 @@ function JournalScreen({ initialSlug }: JournalScreenProps) {
             gap={0}
           >
             <text fg="cyan">{activeEntry.title}</text>
-            <text fg="gray">{formatEntryDate(activeEntry.date)}</text>
+            <text fg="gray">Created: {formatEntryDate(activeEntry.dateCreated)}</text>
+            <text fg="gray">Updated: {formatEntryDate(activeEntry.dateUpdated)}</text>
           </box>
-          <scrollbox ref={contentScrollRef} flexGrow={1} scrollY>
+          <scrollbox ref={contentScrollRef} flexGrow={1} minHeight={0} scrollY>
             <markdown
               key={activeEntry.slug}
               content={activeEntry.body}

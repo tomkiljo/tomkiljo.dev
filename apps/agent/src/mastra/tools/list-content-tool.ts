@@ -16,6 +16,9 @@ export const listIndexedContentTool = createTool({
         sourceFile: z.string(),
         sourceLink: z.string(),
         section: z.string(),
+        dateCreated: z.string(),
+        dateModified: z.string(),
+        dateUpdated: z.string(),
       }),
     ),
     count: z.number(),
@@ -40,6 +43,9 @@ export const listIndexedContentTool = createTool({
           sourceFile: string;
           sourceLink: string;
           section: string;
+          dateCreated: string;
+          dateModified: string;
+          dateUpdated: string;
         }
       >();
 
@@ -55,11 +61,14 @@ export const listIndexedContentTool = createTool({
           sourceFile: String(result.metadata?.sourceFile ?? ""),
           sourceLink: String(result.metadata?.sourceLink ?? ""),
           section: String(result.metadata?.section ?? "content"),
+          dateCreated: String(result.metadata?.dateCreated ?? ""),
+          dateModified: String(result.metadata?.dateModified ?? ""),
+          dateUpdated: String(result.metadata?.dateUpdated ?? ""),
         });
       }
 
-      const documents = Array.from(documentsById.values()).sort((a, b) =>
-        a.sourceFile.localeCompare(b.sourceFile),
+      const documents = Array.from(documentsById.values()).sort(
+        (a, b) => compareDatesDesc(a.dateUpdated, b.dateUpdated) || a.sourceFile.localeCompare(b.sourceFile),
       );
 
       if (documents.length === 0) {
@@ -83,3 +92,13 @@ export const listIndexedContentTool = createTool({
     }
   },
 });
+
+const compareDatesDesc = (a: string, b: string) => {
+  const aTime = Date.parse(`${a}T00:00:00Z`);
+  const bTime = Date.parse(`${b}T00:00:00Z`);
+
+  const normalizedATime = Number.isNaN(aTime) ? 0 : aTime;
+  const normalizedBTime = Number.isNaN(bTime) ? 0 : bTime;
+
+  return normalizedBTime - normalizedATime;
+};
