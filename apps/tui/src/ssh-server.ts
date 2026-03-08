@@ -1,12 +1,101 @@
 import { generateKeyPairSync } from "node:crypto";
 import { createServer as createHttpServer } from "node:http";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { openSync, closeSync, writeSync, createReadStream } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import pty from "@homebridge/node-pty-prebuilt-multiarch";
+import { spawn as nodeSpawn } from "node:child_process";
+import { dlopen, FFIType, ptr } from "bun:ffi";
 import ssh2 from "ssh2";
 
 const { Server } = ssh2;
+
+// --- Bun-native PTY (replaces node-pty) ---
+const { symbols: libc } = dlopen("libc.so.6", {
+  grantpt: { args: [FFIType.i32], returns: FFIType.i32 },
+  unlockpt: { args: [FFIType.i32], returns: FFIType.i32 },
+  ptsname: { args: [FFIType.i32], returns: FFIType.cstring },
+  ioctl: { args: [FFIType.i32, FFIType.u32, FFIType.ptr], returns: FFIType.i32 },
+});
+
+const O_RDWR = 2;
+const TIOCSWINSZ = 0x5414;
+
+interface IPty {
+  onData: (callback: (data: string) => void) => void;
+  onExit: (callback: (info: { exitCode: number }) => void) => void;
+  write: (data: string) => void;
+  resize: (cols: number, rows: number) => void;
+  kill: () => void;
+}
+
+function makeWinsize(rows: number, cols: number): Buffer {
+  const buf = Buffer.alloc(8);
+  buf.writeUInt16LE(rows, 0);
+  buf.writeUInt16LE(cols, 2);
+  return buf;
+}
+
+function spawnPty(
+  file: string,
+  args: string[],
+  options: { cols: number; rows: number; cwd?: string; env?: Record<string, string> }
+): IPty {
+  const masterFd = openSync("/dev/ptmx", O_RDWR);
+  libc.grantpt(masterFd);
+  libc.unlockpt(masterFd);
+  const slaveName = String(libc.ptsname(masterFd));
+
+  const slaveFd = openSync(slaveName, O_RDWR);
+  libc.ioctl(slaveFd, TIOCSWINSZ, ptr(makeWinsize(options.rows, options.cols)));
+
+  const child = nodeSpawn(file, args, {
+    stdio: [slaveFd, slaveFd, slaveFd],
+    cwd: options.cwd,
+    env: options.env,
+    detached: true,
+  });
+  closeSync(slaveFd);
+
+  let dataCallback: ((data: string) => void) | null = null;
+  let exitCallback: ((info: { exitCode: number }) => void) | null = null;
+  let masterClosed = false;
+
+  const rs = createReadStream("", { fd: masterFd, autoClose: false });
+  rs.on("data", (chunk: Buffer) => dataCallback?.(chunk.toString("binary")));
+  rs.on("error", () => {
+    masterClosed = true;
+  });
+
+  child.on("exit", (code) => {
+    if (!masterClosed) {
+      masterClosed = true;
+      rs.destroy();
+      try { closeSync(masterFd); } catch {}
+    }
+    exitCallback?.({ exitCode: code ?? 0 });
+  });
+
+  return {
+    onData: (cb) => { dataCallback = cb; },
+    onExit: (cb) => { exitCallback = cb; },
+    write: (data: string) => {
+      if (!masterClosed) {
+        try { writeSync(masterFd, Buffer.from(data, "binary")); } catch {}
+      }
+    },
+    resize: (cols: number, rows: number) => {
+      try { libc.ioctl(masterFd, TIOCSWINSZ, ptr(makeWinsize(rows, cols))); } catch {}
+    },
+    kill: () => {
+      masterClosed = true;
+      rs.destroy();
+      try { child.kill("SIGTERM"); } catch {}
+      try { closeSync(masterFd); } catch {}
+    },
+  };
+}
+// --- end PTY ---
 
 const appRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 
@@ -60,7 +149,8 @@ const ensureHostKey = async () => {
 
 const hostKey = await ensureHostKey();
 
-const sessions = new Map<number, pty.IPty>();
+const clients = new Set<ssh2.Connection>();
+const sessions = new Map<number, IPty>();
 let nextSessionId = 1;
 let totalSshSessionsServed = 0;
 const startedAt = Date.now();
@@ -90,6 +180,14 @@ const statusServer = createHttpServer((request, response) => {
 });
 
 const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
+  clients.add(client);
+  const remoteAddress = (client as any)._sock?.remoteAddress ?? "unknown";
+  console.log(`[tui-ssh] Client connected: ${remoteAddress}`);
+  client.on("close", () => {
+    clients.delete(client);
+    console.log(`[tui-ssh] Client disconnected: ${remoteAddress}`);
+  });
+
   client.on("authentication", (context) => {
     context.accept();
   });
@@ -98,7 +196,7 @@ const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
     const session = accept();
     let cols = 80;
     let rows = 24;
-    let shell: pty.IPty | null = null;
+    let shell: IPty | null = null;
     let sessionId: number | null = null;
     let cleanedUp = false;
 
@@ -143,8 +241,7 @@ const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
       nextSessionId += 1;
       totalSshSessionsServed += 1;
 
-      shell = pty.spawn("/bin/sh", ["-lc", tuiCommand], {
-        name: "xterm-256color",
+      shell = spawnPty("/bin/sh", ["-lc", tuiCommand], {
         cols,
         rows,
         cwd: appRoot,
@@ -154,7 +251,7 @@ const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
 
       shell.onData((data) => {
         if (!stream.destroyed) {
-          stream.write(data);
+          stream.write(Buffer.from(data, "binary"));
         }
       });
 
@@ -168,7 +265,7 @@ const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
 
       stream.on("data", (data: Buffer) => {
         if (shell) {
-          shell.write(data.toString("utf8"));
+          shell.write(data.toString("binary"));
         }
       });
 
@@ -190,13 +287,26 @@ const sshServer = new Server({ hostKeys: [hostKey] }, (client) => {
 });
 
 const shutdown = () => {
+  console.log("\n[tui-ssh] Shutting down...");
+
   for (const shell of sessions.values()) {
     shell.kill();
   }
   sessions.clear();
 
-  sshServer.close();
-  statusServer.close();
+  for (const client of clients) {
+    client.end();
+  }
+
+  setTimeout(() => process.exit(0), 2000).unref();
+
+  let closed = 0;
+  const onClosed = () => {
+    if (++closed === 2) process.exit(0);
+  };
+
+  sshServer.close(onClosed);
+  statusServer.close(onClosed);
 };
 
 process.on("SIGINT", shutdown);
@@ -210,4 +320,5 @@ sshServer.listen(sshPort, sshHost, () => {
   console.log(`[tui-ssh] SSH server listening on ${sshHost}:${sshPort}`);
   console.log(`[tui-ssh] Host key path: ${hostKeyPath}`);
   console.log(`[tui-ssh] TUI command: ${tuiCommand}`);
+  console.log(`[tui-ssh] Ctrl+C to stop the server`);
 });
