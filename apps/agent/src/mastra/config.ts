@@ -14,8 +14,8 @@ export const CONTENT_ROOT = process.env.CONTENT_ROOT
 
 export const CONTENT_INDEX_NAME = process.env.CONTENT_INDEX_NAME ?? "markdown_content";
 
-export const LLM_BASE_URL = process.env.LLM_BASE_URL ?? "http://localhost:8080";
-export const LLM_MODEL = process.env.LLM_MODEL ?? "qwen25";
+export const LLM_BASE_URL = process.env.LLM_BASE_URL ?? "http://localhost:8080/v1";
+export const LLM_MODEL = process.env.LLM_MODEL ?? "qwen25-3b";
 
 export const EMBEDDING_BASE_URL = process.env.EMBEDDING_BASE_URL ?? "http://localhost:8081";
 export const EMBEDDING_MODEL = process.env.EMBEDDING_MODEL ?? "nomic-embed-text";
@@ -28,8 +28,8 @@ export const OPENAI_COMPAT_API_KEY = process.env.OPENAI_COMPAT_API_KEY;
 
 export const llmModelConfig: LlamaCppModelConfig = {
   providerId: "openai",
-  id: "llamacpp/qwen25-3b",
-  url: "http://localhost:8080/v1",
+  id: `llamacpp/${LLM_MODEL}`,
+  url: LLM_BASE_URL,
 };
 
 export const embeddingModelConfig: LlamaCppModelConfig = {
