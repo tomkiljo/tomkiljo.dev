@@ -1,0 +1,8 @@
+FROM ghcr.io/ggml-org/llama.cpp:server
+
+CMD [ \
+  "-m", "/models/nomic-embed-text-v1.5.Q8_0.gguf", \
+  "--embeddings", \
+  "--host", "0.0.0.0", \
+  "--port", "8080" \
+]

@@ -1,0 +1,8 @@
+FROM ghcr.io/ggml-org/llama.cpp:server
+
+CMD [ \
+  "-m", "/models/bge-reranker-v2-m3-Q4_K_M.gguf", \
+  "--reranking", \
+  "--host", "0.0.0.0", \
+  "--port", "8080" \
+]
