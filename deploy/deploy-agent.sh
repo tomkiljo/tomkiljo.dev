@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deploy the agent and all inference services to vm-002.
+# Deploy the agent and Ollama inference service to vm-002.
 # Usage: ./deploy/deploy-agent.sh <ssh-host> [branch] [ssh-port]
 #
 # <ssh-host>  Hostname or IP of the agent server (arn-prod-hypershell-vm-002)
@@ -9,10 +9,8 @@ set -euo pipefail
 # [ssh-port]  SSH port of the server (default: 2222)
 #
 # Services deployed:
-#   llm        - llama.cpp LLM inference (deploy/dockerfiles/Dockerfile.llm)
-#   embeddings - llama.cpp embeddings   (deploy/dockerfiles/Dockerfile.embeddings)
-#   reranker   - llama.cpp reranker     (deploy/dockerfiles/Dockerfile.reranker)
-#   agent      - Mastra agent           (apps/agent/Dockerfile)
+#   ollama  - Ollama inference service (deploy/dockerfiles/Dockerfile.ollama)
+#   agent   - Mastra agent            (apps/agent/Dockerfile)
 
 SSH_HOST="${1:?Usage: $0 <ssh-host> [branch] [ssh-port]}"
 BRANCH="${2:-HEAD}"
@@ -35,23 +33,14 @@ ensure_remote() {
 }
 
 echo "==> Ensuring git remotes for ${SSH_HOST}..."
-ensure_remote "dokku-llm"        "ssh://dokku@${SSH_HOST}:${SSH_PORT}/llm"
-ensure_remote "dokku-embeddings" "ssh://dokku@${SSH_HOST}:${SSH_PORT}/embeddings"
-ensure_remote "dokku-reranker"   "ssh://dokku@${SSH_HOST}:${SSH_PORT}/reranker"
-ensure_remote "dokku-agent"      "ssh://dokku@${SSH_HOST}:${SSH_PORT}/agent"
+ensure_remote "dokku-ollama" "ssh://dokku@${SSH_HOST}:${SSH_PORT}/ollama"
+ensure_remote "dokku-agent"  "ssh://dokku@${SSH_HOST}:${SSH_PORT}/agent"
 
-# Deploy inference services first — they must be running before the agent starts
+# Deploy Ollama first — agent depends on it being available
 echo ""
-echo "==> Deploying llm inference service..."
-git push dokku-llm "${BRANCH}:main"
-
-echo ""
-echo "==> Deploying embeddings inference service..."
-git push dokku-embeddings "${BRANCH}:main"
-
-echo ""
-echo "==> Deploying reranker inference service..."
-git push dokku-reranker "${BRANCH}:main"
+echo "==> Deploying Ollama inference service..."
+echo "    (First deploy will pull models — this may take a while)"
+git push dokku-ollama "${BRANCH}:main"
 
 echo ""
 echo "==> Deploying agent..."

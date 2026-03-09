@@ -34,12 +34,12 @@ export const llmModelConfig: LlamaCppModelConfig = {
 
 export const embeddingModelConfig: LlamaCppModelConfig = {
   providerId: "openai",
-  id: "llamacpp/nomic-embed-text",
-  url: "http://localhost:8081/v1",
+  id: `llamacpp/${EMBEDDING_MODEL}`,
+  url: EMBEDDING_BASE_URL,
 };
 
 export const rerankerModelConfig: LlamaCppModelConfig = {
   providerId: "openai",
-  id: "llamacpp/bge-reranker-v2-m3",
-  url: "http://localhost:8082/v1",
+  id: `llamacpp/${RERANKER_MODEL}`,
+  url: RERANKER_BASE_URL,
 };

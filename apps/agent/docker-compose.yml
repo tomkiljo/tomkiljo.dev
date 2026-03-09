@@ -1,0 +1,44 @@
+services:
+  ollama:
+    image: ollama/ollama
+    restart: unless-stopped
+    volumes:
+      - ollama-data:/root/.ollama
+      - ./scripts/ollama-entrypoint.sh:/ollama-entrypoint.sh:ro
+    environment:
+      OLLAMA_MODELS: ${OLLAMA_MODELS:-qwen2.5:3b nomic-embed-text}
+    entrypoint: ["/ollama-entrypoint.sh"]
+    networks:
+      - agent-net
+
+  agent:
+    build:
+      context: ../..
+      dockerfile: apps/agent/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      - ollama
+    ports:
+      - "${AGENT_PORT:-4111}:4111"
+    volumes:
+      - agent-data:/data
+    environment:
+      LLM_BASE_URL: http://ollama:11434/v1
+      LLM_MODEL: ${LLM_MODEL:-qwen2.5:3b}
+      EMBEDDING_BASE_URL: http://ollama:11434/v1
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-nomic-embed-text}
+      EMBEDDING_DIMENSION: ${EMBEDDING_DIMENSION:-768}
+      RERANKER_BASE_URL: http://ollama:11434/v1
+      RERANKER_MODEL: ${RERANKER_MODEL:-bge-reranker-v2-m3}
+      MASTRA_DB_URL: file:/data/mastra.db
+      CONTENT_ROOT: /app/packages/content
+    networks:
+      - agent-net
+
+networks:
+  agent-net:
+    driver: bridge
+
+volumes:
+  ollama-data:
+  agent-data:
