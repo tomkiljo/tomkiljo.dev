@@ -71,27 +71,41 @@ function spawnPty(
     if (!masterClosed) {
       masterClosed = true;
       rs.destroy();
-      try { closeSync(masterFd); } catch {}
+      try {
+        closeSync(masterFd);
+      } catch {}
     }
     exitCallback?.({ exitCode: code ?? 0 });
   });
 
   return {
-    onData: (cb) => { dataCallback = cb; },
-    onExit: (cb) => { exitCallback = cb; },
+    onData: (cb) => {
+      dataCallback = cb;
+    },
+    onExit: (cb) => {
+      exitCallback = cb;
+    },
     write: (data: string) => {
       if (!masterClosed) {
-        try { writeSync(masterFd, Buffer.from(data, "binary")); } catch {}
+        try {
+          writeSync(masterFd, Buffer.from(data, "binary"));
+        } catch {}
       }
     },
     resize: (cols: number, rows: number) => {
-      try { libc.ioctl(masterFd, TIOCSWINSZ, ptr(makeWinsize(rows, cols))); } catch {}
+      try {
+        libc.ioctl(masterFd, TIOCSWINSZ, ptr(makeWinsize(rows, cols)));
+      } catch {}
     },
     kill: () => {
       masterClosed = true;
       rs.destroy();
-      try { child.kill("SIGTERM"); } catch {}
-      try { closeSync(masterFd); } catch {}
+      try {
+        child.kill("SIGTERM");
+      } catch {}
+      try {
+        closeSync(masterFd);
+      } catch {}
     },
   };
 }

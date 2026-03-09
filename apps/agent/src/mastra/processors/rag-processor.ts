@@ -29,10 +29,7 @@ const extractUserText = (content: unknown): string => {
 export const ragProcessor = {
   id: "rag-processor",
 
-  async processInput({
-    messages,
-    systemMessages,
-  }: ProcessInputArgs): Promise<ProcessInputResult> {
+  async processInput({ messages, systemMessages }: ProcessInputArgs): Promise<ProcessInputResult> {
     const lastUserMessage = [...messages].reverse().find((m) => m.role === "user");
     const queryText = extractUserText(lastUserMessage?.content);
 
@@ -49,9 +46,7 @@ export const ragProcessor = {
       return { messages, systemMessages };
     }
 
-    const contextText = matches
-      .map((m) => `--- ${m.title} ---\n${m.chunk}`)
-      .join("\n\n");
+    const contextText = matches.map((m) => `--- ${m.title} ---\n${m.chunk}`).join("\n\n");
 
     const contextMessage = {
       role: "system" as const,

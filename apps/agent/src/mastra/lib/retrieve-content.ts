@@ -20,7 +20,7 @@ export type ContentMatch = {
 export async function retrieveContent(
   queryText: string,
   topK = 8,
-  section?: string,
+  section?: string
 ): Promise<{ matches: ContentMatch[]; total: number }> {
   const embeddingModel = new OllamaEmbeddingModel(embeddingModelConfig);
   const { embeddings: queryEmbeddings } = await embeddingModel.doEmbed({ values: [queryText] });
@@ -33,7 +33,12 @@ export async function retrieveContent(
   });
 
   const rerankerClient = new OllamaRerankerModel(rerankerModelConfig);
-  const rankedEntries = await rerank(rerankerClient, queryText, initialResults, initialResults.length);
+  const rankedEntries = await rerank(
+    rerankerClient,
+    queryText,
+    initialResults,
+    initialResults.length
+  );
 
   const matches = rankedEntries.map(({ result, score }) => ({
     chunk: String(result.metadata?.text ?? ""),

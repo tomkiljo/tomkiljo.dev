@@ -229,17 +229,19 @@ export const rerank = async <T extends { metadata?: { text?: unknown }; score?: 
   // } catch (error) {
   //   console.warn("Reranker failed, falling back to BM25 hybrid rank:", error);
 
-    const rawBm25 = bm25Scores(query, documents);
-    const maxBm25 = Math.max(...rawBm25, 1e-9);
-    const maxVector = Math.max(...rankedEntries.map((e) => e.score), 1e-9);
+  const rawBm25 = bm25Scores(query, documents);
+  const maxBm25 = Math.max(...rawBm25, 1e-9);
+  const maxVector = Math.max(...rankedEntries.map((e) => e.score), 1e-9);
 
-    const hybridScored = rankedEntries.map((entry, i) => ({
-      ...entry,
-      score: BM25_VECTOR_WEIGHT * (entry.score / maxVector) + (1 - BM25_VECTOR_WEIGHT) * (rawBm25[i] / maxBm25),
-    }));
+  const hybridScored = rankedEntries.map((entry, i) => ({
+    ...entry,
+    score:
+      BM25_VECTOR_WEIGHT * (entry.score / maxVector) +
+      (1 - BM25_VECTOR_WEIGHT) * (rawBm25[i] / maxBm25),
+  }));
 
-    const sorted = hybridScored.sort((a, b) => b.score - a.score);
-    const diversified = applyMMR(sorted, documents);
-    return diversified.slice(0, Math.min(topN, initialResults.length));
+  const sorted = hybridScored.sort((a, b) => b.score - a.score);
+  const diversified = applyMMR(sorted, documents);
+  return diversified.slice(0, Math.min(topN, initialResults.length));
   // }
 };

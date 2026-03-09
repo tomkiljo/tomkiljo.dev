@@ -146,7 +146,8 @@ export const askLlmStream = async (question: string, options: AskLlmStreamOption
     .filter((text): text is string => Boolean(text))
     .join("");
 
-  const answer = payload.tripwire?.reason ?? payload.text ?? payload.response?.text ?? textFromOutput;
+  const answer =
+    payload.tripwire?.reason ?? payload.text ?? payload.response?.text ?? textFromOutput;
 
   if (!answer) {
     throw new Error("Mastra agent returned no text response.");
