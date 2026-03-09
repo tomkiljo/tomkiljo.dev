@@ -121,7 +121,7 @@ function JournalScreen({ initialSlug }: JournalScreenProps) {
         </box>
         <box
           flexDirection="column"
-          flexGrow={1}
+          flexGrow={2}
           minHeight={0}
           paddingLeft={1}
           paddingRight={1}
