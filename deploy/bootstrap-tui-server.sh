@@ -60,11 +60,13 @@ fi
 dokku builder-dockerfile:set tui dockerfile-path apps/tui/Dockerfile
 
 # PTY device and port publishing (proxy:disable alone doesn't bind host ports)
+# Clear first to avoid duplicates on re-runs, then re-add.
+dokku docker-options:clear tui deploy,run 2>/dev/null || true
 dokku docker-options:add tui deploy,run "--device /dev/ptmx:/dev/ptmx --publish 22:22 --publish 39217:39217"
 
 # Persistent storage for SSH host key
 dokku storage:ensure-directory tui
-dokku storage:mount tui /var/lib/dokku/data/storage/tui:/data
+dokku storage:mount tui /var/lib/dokku/data/storage/tui:/data 2>/dev/null || true
 
 # Disable nginx proxy (ports published directly via docker-options above)
 dokku proxy:disable tui

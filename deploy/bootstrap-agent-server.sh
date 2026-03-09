@@ -59,12 +59,14 @@ for app in ollama agent; do
 done
 
 # Set explicit hostnames so Docker's embedded DNS resolves them by name within agent-net.
+# Clear first to avoid duplicates on re-runs, then re-add.
+dokku docker-options:clear ollama deploy,run 2>/dev/null || true
 dokku docker-options:add ollama deploy,run "--hostname ollama"
 
 # ---- Ollama app config ----
 # Persistent storage for downloaded models (~/.ollama in container = /root/.ollama)
 dokku storage:ensure-directory ollama
-dokku storage:mount ollama /var/lib/dokku/data/storage/ollama:/root/.ollama
+dokku storage:mount ollama /var/lib/dokku/data/storage/ollama:/root/.ollama 2>/dev/null || true
 
 # No public port for ollama (internal only via agent-net)
 dokku proxy:disable ollama
@@ -82,10 +84,11 @@ dokku checks:disable ollama
 # ---- Agent app config ----
 # Persistent storage for mastra DB
 dokku storage:ensure-directory agent
-dokku storage:mount agent /var/lib/dokku/data/storage/agent:/data
+dokku storage:mount agent /var/lib/dokku/data/storage/agent:/data 2>/dev/null || true
 
 # Disable nginx proxy, publish port directly via docker-options
 dokku proxy:disable agent
+dokku docker-options:clear agent deploy,run 2>/dev/null || true
 dokku docker-options:add agent deploy,run "--publish 4111:4111"
 
 # Zero-downtime checks can't work with host-published ports

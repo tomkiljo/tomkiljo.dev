@@ -12,6 +12,7 @@ const quit = () => {
   }
 
   isQuitting = true;
+  renderer.destroy();
   process.exit(0);
 };
 
