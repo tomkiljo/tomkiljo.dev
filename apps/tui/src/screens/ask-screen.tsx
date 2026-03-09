@@ -120,8 +120,9 @@ function AskScreen() {
       {/* Message thread */}
       <scrollbox ref={scrollRef} flexGrow={1} scrollY stickyScroll stickyStart="bottom">
         {messages.length === 0 && (
-          <box paddingLeft={3}>
+          <box paddingLeft={3} flexDirection="column" gap={1}>
             <text fg="gray">No messages yet. Ask the content agent anything below.</text>
+            <text fg="yellow">⚠ The agent is experimental and may give incorrect answers.</text>
           </box>
         )}
         {messages.map((msg, index) =>
