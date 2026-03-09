@@ -1,19 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Reach the agent via its hostname on agent-net (--hostname agent set in deploy docker-options)
-AGENT_URL="http://agent:4111"
-TIMEOUT=120
-START=$(date +%s)
-
-echo "[trigger-index] Waiting for agent at ${AGENT_URL}..."
-until curl -sf "${AGENT_URL}/api/agents" > /dev/null 2>&1; do
-  if [ $(( $(date +%s) - START )) -ge $TIMEOUT ]; then
-    echo "[trigger-index] ERROR: timed out after ${TIMEOUT}s"
-    exit 1
-  fi
-  sleep 2
-done
+AGENT_URL="http://localhost:4111"
 
 echo "[trigger-index] Starting content indexing..."
 RUN_ID=$(curl -sf -X POST "${AGENT_URL}/api/workflows/index-markdown-content/create-run" \

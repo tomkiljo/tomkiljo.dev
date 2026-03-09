@@ -15,6 +15,7 @@ set -euo pipefail
 SSH_HOST="${1:?Usage: $0 <ssh-host> [branch] [ssh-port]}"
 BRANCH="${2:-HEAD}"
 SSH_PORT="${3:-2222}"
+SSH_ROOT="ssh ${SSH_HOST}"  # root on default port 22 (same access as bootstrap)
 
 ensure_remote() {
   local name="$1"
@@ -47,6 +48,15 @@ echo "==> Deploying agent..."
 git push dokku-agent "${BRANCH}:main"
 
 echo ""
+echo "==> Waiting for agent to be ready..."
+until ${SSH_ROOT} "docker exec agent.web.1 curl -sf http://localhost:4111/api/agents > /dev/null 2>&1"; do
+  sleep 2
+done
+
+echo ""
+echo "==> Running content indexing workflow..."
+${SSH_ROOT} "docker exec -w /app/apps/agent agent.web.1 bash scripts/trigger-index.sh"
+
+echo ""
 echo "==> Deploy complete."
 echo "    Agent API: http://${SSH_HOST}:4111"
-echo "    Content indexing runs automatically via Dokku postdeploy (app.json)"
