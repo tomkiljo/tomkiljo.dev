@@ -46,7 +46,25 @@ echo ""
 echo "==> Deploying agent..."
 git push dokku-agent "${BRANCH}:main"
 
+AGENT_URL="http://${SSH_HOST}:4111"
+
+echo ""
+echo "==> Waiting for agent to be ready..."
+until curl -sf "${AGENT_URL}/api/agents" > /dev/null 2>&1; do
+  sleep 2
+done
+
+echo ""
+echo "==> Running content indexing workflow..."
+RUN_ID=$(curl -sf -X POST "${AGENT_URL}/api/workflows/index-markdown-content/create-run" \
+  -H "Content-Type: application/json" -d '{}' | grep -o '"runId":"[^"]*"' | cut -d'"' -f4)
+
+curl -sf -X POST "${AGENT_URL}/api/workflows/index-markdown-content/start?runId=${RUN_ID}" \
+  -H "Content-Type: application/json" -d '{}' > /dev/null
+
+echo "    Indexing started (runId: ${RUN_ID})"
+echo "    Monitor: curl ${AGENT_URL}/api/workflows/index-markdown-content/runs/${RUN_ID}"
+
 echo ""
 echo "==> Deploy complete."
-echo "    Agent API: http://${SSH_HOST}:4111"
-echo "    Health check: curl http://${SSH_HOST}:4111/api/agents"
+echo "    Agent API: ${AGENT_URL}"
