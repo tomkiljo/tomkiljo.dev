@@ -1,0 +1,64 @@
+services:
+  llm:
+    image: ${CONTAINER_IMAGE:-ghcr.io/ggml-org/llama.cpp:server}
+    container_name: ${LLM_CONTAINER_NAME:-llm}
+    restart: unless-stopped
+    ports:
+      - "${LLM_PORT:-8080}:8080"
+    volumes:
+      - ${MODEL_DIR:-./.models}:/models
+    command:
+      - -m
+      - /models/${LLM_MODEL_NAME:-Qwen2.5-3B-Instruct-Q4_K_M.gguf}
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+      - -t
+      - "${THREADS:-4}"
+      - -tb
+      - "${THREADS_BATCH:-4}"
+      - --flash-attn
+      - "on"
+      - --cache-type-k
+      - q4_0
+      - --cache-type-v
+      - q4_0
+      - -c
+      - "4096"
+      - --repeat-penalty
+      - "1.15"
+
+  embeddings:
+    image: ${CONTAINER_IMAGE:-ghcr.io/ggml-org/llama.cpp:server}
+    container_name: ${EMBEDDING_CONTAINER_NAME:-embeddings}
+    restart: unless-stopped
+    ports:
+      - "${EMBEDDING_PORT:-8081}:8080"
+    volumes:
+      - ${MODEL_DIR:-./.models}:/models
+    command:
+      - -m
+      - /models/${EMBEDDING_MODEL_NAME:-nomic-embed-text-v1.5.Q8_0.gguf}
+      - --embeddings
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"
+
+  reranker:
+    image: ${CONTAINER_IMAGE:-ghcr.io/ggml-org/llama.cpp:server}
+    container_name: ${RERANKER_CONTAINER_NAME:-reranker}
+    restart: unless-stopped
+    ports:
+      - "${RERANKER_PORT:-8082}:8080"
+    volumes:
+      - ${MODEL_DIR:-./.models}:/models
+    command:
+      - -m
+      - /models/${RERANKER_MODEL_NAME:-bge-reranker-v2-m3-Q4_K_M.gguf}
+      - --reranking
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8080"

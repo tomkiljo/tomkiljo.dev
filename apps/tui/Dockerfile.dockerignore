@@ -1,0 +1,9 @@
+.git
+node_modules
+apps/*/node_modules
+apps/agent/.mastra
+apps/web/.next
+apps/web/out
+apps/tui/.data
+.env
+.env.*
