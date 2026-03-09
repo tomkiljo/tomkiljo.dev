@@ -48,6 +48,9 @@ COPY --from=build /app/apps/agent/package.json ./package.json
 # Copy content for RAG (CONTENT_ROOT defaults to /app/packages/content)
 COPY --from=build /app/packages/content /app/packages/content
 
+# Copy deployment scripts (used by Dokku postdeploy via app.json)
+COPY --from=build /app/apps/agent/scripts ./scripts
+
 EXPOSE 4111
 
 ENV LLM_BASE_URL="http://llm:8080/v1"

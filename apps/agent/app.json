@@ -1,0 +1,7 @@
+{
+  "scripts": {
+    "dokku": {
+      "postdeploy": "bash scripts/trigger-index.sh"
+    }
+  }
+}
