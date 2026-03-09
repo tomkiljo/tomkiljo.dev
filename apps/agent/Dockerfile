@@ -29,6 +29,8 @@ RUN pnpm run build
 # ── runtime stage ─────────────────────────────────────────────────────────────
 FROM node:24-slim AS runtime
 
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable && corepack prepare pnpm@10.0.0 --activate
