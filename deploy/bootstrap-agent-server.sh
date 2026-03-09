@@ -58,6 +58,9 @@ for app in ollama agent; do
   dokku network:set \$app attach-post-create agent-net
 done
 
+# Set explicit hostnames so Docker's embedded DNS resolves them by name within agent-net.
+dokku docker-options:add ollama deploy,run "--hostname ollama"
+
 # ---- Ollama app config ----
 # Persistent storage for downloaded models (~/.ollama in container = /root/.ollama)
 dokku storage:ensure-directory ollama
@@ -71,7 +74,10 @@ dokku builder-dockerfile:set ollama dockerfile-path deploy/dockerfiles/Dockerfil
 
 # Models to pull on startup
 dokku config:set ollama \
-  OLLAMA_MODELS="qwen2.5:3b nomic-embed-text"
+  PULL_MODELS="qwen2.5:3b nomic-embed-text"
+
+# Zero-downtime checks can't work with host-published ports
+dokku checks:disable ollama
 
 # ---- Agent app config ----
 # Persistent storage for mastra DB
@@ -82,19 +88,22 @@ dokku storage:mount agent /var/lib/dokku/data/storage/agent:/data
 dokku proxy:disable agent
 dokku docker-options:add agent deploy,run "--publish 4111:4111"
 
+# Zero-downtime checks can't work with host-published ports
+dokku checks:disable agent
+
 # Dockerfile path (monorepo root is build context)
 dokku builder-dockerfile:set agent dockerfile-path apps/agent/Dockerfile
 
 # Agent environment variables
-# Ollama hostname uses Dokku's <app>.<network> naming within agent-net
+# Ollama is reachable by hostname within agent-net (--hostname ollama set above)
 # Reranker points to Ollama too — it will 404 and fall back to vector rank gracefully
 dokku config:set agent \
-  LLM_BASE_URL=http://ollama.agent-net:11434/v1 \
+  LLM_BASE_URL=http://ollama:11434/v1 \
   LLM_MODEL=qwen2.5:3b \
-  EMBEDDING_BASE_URL=http://ollama.agent-net:11434/v1 \
+  EMBEDDING_BASE_URL=http://ollama:11434/v1 \
   EMBEDDING_MODEL=nomic-embed-text \
   EMBEDDING_DIMENSION=768 \
-  RERANKER_BASE_URL=http://ollama.agent-net:11434/v1 \
+  RERANKER_BASE_URL=http://ollama:11434/v1 \
   RERANKER_MODEL=bge-reranker-v2-m3 \
   MASTRA_DB_URL=file:/data/mastra.db \
   CONTENT_ROOT=/app/packages/content

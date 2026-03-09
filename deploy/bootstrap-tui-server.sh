@@ -69,6 +69,9 @@ dokku storage:mount tui /var/lib/dokku/data/storage/tui:/data
 # Disable nginx proxy (ports published directly via docker-options above)
 dokku proxy:disable tui
 
+# Zero-downtime checks can't work with host-published ports (port already allocated)
+dokku checks:disable tui
+
 # Environment variables
 dokku config:set tui \
   SSH_LISTEN_HOST=0.0.0.0 \

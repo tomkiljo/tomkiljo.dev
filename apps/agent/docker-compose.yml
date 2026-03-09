@@ -6,7 +6,7 @@ services:
       - ollama-data:/root/.ollama
       - ./scripts/ollama-entrypoint.sh:/ollama-entrypoint.sh:ro
     environment:
-      OLLAMA_MODELS: ${OLLAMA_MODELS:-qwen2.5:3b nomic-embed-text}
+      PULL_MODELS: ${PULL_MODELS:-qwen2.5:3b nomic-embed-text}
     entrypoint: ["/ollama-entrypoint.sh"]
     networks:
       - agent-net

@@ -2,8 +2,8 @@
 set -e
 
 # Models to pull on first startup (space-separated).
-# Override via OLLAMA_MODELS env var.
-OLLAMA_MODELS="${OLLAMA_MODELS:-qwen2.5:3b nomic-embed-text}"
+# Override via PULL_MODELS env var.
+PULL_MODELS="${PULL_MODELS:-qwen2.5:3b nomic-embed-text}"
 
 # Start the Ollama server in the background
 ollama serve &
@@ -17,7 +17,7 @@ done
 echo "[ollama] Server ready."
 
 # Pull each model if not already present (persisted via volume mount)
-for model in $OLLAMA_MODELS; do
+for model in $PULL_MODELS; do
   if ollama list 2>/dev/null | grep -q "^${model}"; then
     echo "[ollama] Model already present: $model"
   else

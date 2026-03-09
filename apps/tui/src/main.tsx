@@ -12,9 +12,7 @@ const quit = () => {
   }
 
   isQuitting = true;
-  root.unmount();
-  renderer.destroy();
-  queueMicrotask(() => process.exit(0));
+  process.exit(0);
 };
 
 root.render(<App onQuit={quit} />);
