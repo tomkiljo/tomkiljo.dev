@@ -51,12 +51,12 @@ COPY --from=build /app/packages/content /app/packages/content
 EXPOSE 4111
 
 ENV LLM_BASE_URL="http://llm:8080/v1"
-ENV LLM_MODEL="qwen25-3b"
+ENV LLM_MODEL="qwen2.5:3b"
 ENV EMBEDDING_BASE_URL="http://embeddings:8080"
 ENV EMBEDDING_MODEL="nomic-embed-text"
 ENV EMBEDDING_DIMENSION="768"
 ENV RERANKER_BASE_URL="http://reranker:8080"
-ENV RERANKER_MODEL="bge-reranker-v2-m3"
+ENV RERANKER_MODEL="bona/bge-reranker-v2-m3"
 ENV MASTRA_DB_URL="file:/data/mastra.db"
 ENV CONTENT_ROOT="/app/packages/content"
 

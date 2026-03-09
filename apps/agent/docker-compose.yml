@@ -2,11 +2,13 @@ services:
   ollama:
     image: ollama/ollama
     restart: unless-stopped
+    ports:
+      - "11435:11434"
     volumes:
       - ollama-data:/root/.ollama
       - ./scripts/ollama-entrypoint.sh:/ollama-entrypoint.sh:ro
     environment:
-      PULL_MODELS: ${PULL_MODELS:-qwen2.5:3b nomic-embed-text}
+      PULL_MODELS: ${PULL_MODELS:-qwen2.5:3b nomic-embed-text bona/bge-reranker-v2-m3}
     entrypoint: ["/ollama-entrypoint.sh"]
     networks:
       - agent-net

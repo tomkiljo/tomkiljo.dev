@@ -1,4 +1,4 @@
-import type { LlamaCppModelConfig } from "./llamacpp";
+import type { OllamaModelConfig } from "./ollama";
 
 export type OpenAICompatibleRerankRequest = {
   model: string;
@@ -7,7 +7,7 @@ export type OpenAICompatibleRerankRequest = {
   top_n: number;
 };
 
-export type LlamaCppRerankItem = {
+export type OllamaRerankItem = {
   index: number;
   relevanceScore: number;
 };
@@ -17,7 +17,7 @@ export type RankedResult<T> = {
   score: number;
 };
 
-const parseRerankResponse = (payload: unknown): LlamaCppRerankItem[] => {
+const parseRerankResponse = (payload: unknown): OllamaRerankItem[] => {
   if (!payload || typeof payload !== "object") {
     return [];
   }
@@ -54,22 +54,30 @@ const parseRerankResponse = (payload: unknown): LlamaCppRerankItem[] => {
         relevanceScore,
       };
     })
-    .filter((item): item is LlamaCppRerankItem => Boolean(item));
+    .filter((item): item is OllamaRerankItem => Boolean(item));
 };
 
-export class LlamaCppRerankerModel {
+// Note: Ollama's is currently not supporting rerank endpoint, so this is a placeholder implementation.
+// https://github.com/ollama/ollama/issues/3368
+export class OllamaRerankerModel {
   private readonly model: string;
   private readonly rerankUrl: string;
 
-  constructor(config: LlamaCppModelConfig) {
-    this.model = config.id;
+  constructor(config: OllamaModelConfig) {
+    // strip "ollama/" prefix if present to allow for more flexible model naming (e.g. "bona/bge-reranker-v2-m3" instead of "ollama/bona/bge-reranker-v2-m3")
+    if (config.id.startsWith("ollama/")) {
+      this.model = config.id.slice(7);
+    } else {
+      this.model = config.id;
+    }
     const sanitizedBase = config.url.trim().replace(/\/+$/, "");
-    this.rerankUrl = sanitizedBase.endsWith("/v1")
-      ? `${sanitizedBase}/rerank`
-      : `${sanitizedBase}/v1/rerank`;
+    // strip /v1 suffix if present — Ollama rerank endpoint is /api/rerank, not /v1/rerank
+    const base = sanitizedBase.endsWith("/v1") ? sanitizedBase.slice(0, -3) : sanitizedBase;
+    this.rerankUrl = `${base}/api/rerank`;
   }
 
-  async doRerank(query: string, documents: string[], topN: number): Promise<LlamaCppRerankItem[]> {
+  async doRerank(query: string, documents: string[], topN: number): Promise<OllamaRerankItem[]> {
+    console.log(`[reranker] POST ${this.rerankUrl} model=${this.model}`);
     const response = await fetch(this.rerankUrl, {
       method: "POST",
       headers: {
@@ -94,7 +102,7 @@ export class LlamaCppRerankerModel {
 }
 
 export const rerank = async <T extends { metadata?: { text?: unknown }; score?: unknown }>(
-  client: LlamaCppRerankerModel,
+  client: OllamaRerankerModel,
   query: string,
   initialResults: T[],
   topN: number
@@ -129,6 +137,8 @@ export const rerank = async <T extends { metadata?: { text?: unknown }; score?: 
       .sort((a, b) => b.score - a.score);
   } catch (error) {
     console.warn("Reranker failed, falling back to vector rank:", error);
-    return rankedEntries;
+    return rankedEntries
+      .sort((a, b) => b.score - a.score)
+      .slice(0, Math.min(topN, initialResults.length));
   }
 };

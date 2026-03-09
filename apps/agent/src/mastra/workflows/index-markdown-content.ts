@@ -5,7 +5,7 @@ import { createStep, createWorkflow } from "@mastra/core/workflows";
 import { z } from "zod";
 import { CONTENT_ROOT, EMBEDDING_DIMENSION, embeddingModelConfig } from "../config";
 import { contentVectorStore, CONTENT_INDEX_NAME } from "../lib/vector-store";
-import { LlamaCppEmbeddingModel } from "../lib/llamacpp";
+import { OllamaEmbeddingModel } from "../lib/ollama";
 
 const sourceDocumentSchema = z.object({
   documentId: z.string(),
@@ -170,7 +170,7 @@ const storeEmbeddingsStep = createStep({
       };
     }
 
-    const embeddingModel = new LlamaCppEmbeddingModel(embeddingModelConfig);
+    const embeddingModel = new OllamaEmbeddingModel(embeddingModelConfig);
 
     const vectors: number[][] = [];
     const texts = inputData.chunks.map((chunk) => chunk.text);

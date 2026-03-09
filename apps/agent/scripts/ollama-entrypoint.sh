@@ -3,7 +3,7 @@ set -e
 
 # Models to pull on first startup (space-separated).
 # Override via PULL_MODELS env var.
-PULL_MODELS="${PULL_MODELS:-qwen2.5:3b nomic-embed-text}"
+PULL_MODELS="${PULL_MODELS:-qwen2.5:3b nomic-embed-text bona/bge-reranker-v2-m3}"
 
 # Start the Ollama server in the background
 ollama serve &

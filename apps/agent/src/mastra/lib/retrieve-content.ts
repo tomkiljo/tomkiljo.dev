@@ -1,5 +1,5 @@
-import { LlamaCppEmbeddingModel } from "./llamacpp";
-import { LlamaCppRerankerModel, rerank } from "./llamacpp-reranker";
+import { OllamaEmbeddingModel } from "./ollama";
+import { OllamaRerankerModel, rerank } from "./ollama-reranker";
 import { embeddingModelConfig, rerankerModelConfig } from "../config";
 import { contentVectorStore, CONTENT_INDEX_NAME } from "./vector-store";
 
@@ -22,7 +22,7 @@ export async function retrieveContent(
   topK = 8,
   section?: string,
 ): Promise<{ matches: ContentMatch[]; total: number }> {
-  const embeddingModel = new LlamaCppEmbeddingModel(embeddingModelConfig);
+  const embeddingModel = new OllamaEmbeddingModel(embeddingModelConfig);
   const { embeddings: queryEmbeddings } = await embeddingModel.doEmbed({ values: [queryText] });
 
   const initialResults = await contentVectorStore.query({
@@ -32,7 +32,7 @@ export async function retrieveContent(
     filter: section ? { section } : undefined,
   });
 
-  const rerankerClient = new LlamaCppRerankerModel(rerankerModelConfig);
+  const rerankerClient = new OllamaRerankerModel(rerankerModelConfig);
   const rankedEntries = await rerank(rerankerClient, queryText, initialResults, initialResults.length);
 
   const matches = rankedEntries.map(({ result, score }) => ({

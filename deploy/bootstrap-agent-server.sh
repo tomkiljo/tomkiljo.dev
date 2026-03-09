@@ -76,7 +76,7 @@ dokku builder-dockerfile:set ollama dockerfile-path deploy/dockerfiles/Dockerfil
 
 # Models to pull on startup
 dokku config:set ollama \
-  PULL_MODELS="qwen2.5:3b nomic-embed-text"
+  PULL_MODELS="qwen2.5:3b nomic-embed-text bona/bge-reranker-v2-m3"
 
 # Zero-downtime checks can't work with host-published ports
 dokku checks:disable ollama
@@ -107,7 +107,7 @@ dokku config:set agent \
   EMBEDDING_MODEL=nomic-embed-text \
   EMBEDDING_DIMENSION=768 \
   RERANKER_BASE_URL=http://ollama:11434/v1 \
-  RERANKER_MODEL=bge-reranker-v2-m3 \
+  RERANKER_MODEL=bona/bge-reranker-v2-m3 \
   MASTRA_DB_URL=file:/data/mastra.db \
   CONTENT_ROOT=/app/packages/content
 
