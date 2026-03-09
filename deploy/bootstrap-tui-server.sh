@@ -59,17 +59,15 @@ fi
 # Use monorepo-root build context with apps/tui/Dockerfile
 dokku builder-dockerfile:set tui dockerfile-path apps/tui/Dockerfile
 
-# PTY device required by bun:ffi
-dokku docker-options:add tui deploy,run "--device /dev/ptmx:/dev/ptmx"
+# PTY device and port publishing (proxy:disable alone doesn't bind host ports)
+dokku docker-options:add tui deploy,run "--device /dev/ptmx:/dev/ptmx --publish 22:22 --publish 39217:39217"
 
 # Persistent storage for SSH host key
 dokku storage:ensure-directory tui
 dokku storage:mount tui /var/lib/dokku/data/storage/tui:/data
 
-# Disable nginx proxy, expose ports directly
+# Disable nginx proxy (ports published directly via docker-options above)
 dokku proxy:disable tui
-dokku ports:add tui tcp:22:22
-dokku ports:add tui tcp:39217:39217
 
 # Environment variables
 dokku config:set tui \

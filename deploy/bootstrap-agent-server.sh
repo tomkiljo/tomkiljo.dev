@@ -75,9 +75,9 @@ done
 dokku storage:ensure-directory agent
 dokku storage:mount agent /var/lib/dokku/data/storage/agent:/data
 
-# Disable nginx proxy, expose port directly
+# Disable nginx proxy, publish port directly via docker-options
 dokku proxy:disable agent
-dokku ports:add agent tcp:4111:4111
+dokku docker-options:add agent deploy,run "--publish 4111:4111"
 
 # Dockerfile paths (monorepo root is build context)
 dokku builder-dockerfile:set agent dockerfile-path apps/agent/Dockerfile
