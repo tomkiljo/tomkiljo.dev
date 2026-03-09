@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-AGENT_URL="http://agent:4111"
+# Reach the published port via the Docker host gateway (avoids DNS dependency)
+GATEWAY=$(ip route show default | awk '/default/ {print $3}')
+AGENT_URL="http://${GATEWAY}:4111"
 
 echo "[trigger-index] Waiting for agent to be ready..."
 until curl -sf "${AGENT_URL}/api/agents" > /dev/null 2>&1; do
