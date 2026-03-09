@@ -89,9 +89,8 @@ dokku storage:mount agent /var/lib/dokku/data/storage/agent:/data 2>/dev/null ||
 # Disable nginx proxy, publish port directly via docker-options
 dokku proxy:disable agent
 dokku docker-options:clear agent deploy,run 2>/dev/null || true
-dokku docker-options:add agent deploy,run "--publish 4111:4111"
-# Set hostname on deploy containers so postdeploy tasks can reach them via agent-net DNS
-dokku docker-options:add agent deploy "--hostname agent"
+# publish and hostname only on deploy — run/one-off containers must not bind the port
+dokku docker-options:add agent deploy "--publish 4111:4111 --hostname agent"
 
 # app.json lives inside apps/agent/ in the monorepo
 dokku app-json:set agent appjson-path apps/agent/app.json 2>/dev/null || true

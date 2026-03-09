@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Reach the published port via the Docker host gateway (avoids DNS dependency)
-GATEWAY=$(ip route show default | awk '/default/ {print $3}')
-AGENT_URL="http://${GATEWAY}:4111"
+# Reach the agent via its hostname on agent-net (--hostname agent set in deploy docker-options)
+AGENT_URL="http://agent:4111"
+TIMEOUT=120
+START=$(date +%s)
 
-echo "[trigger-index] Waiting for agent to be ready..."
+echo "[trigger-index] Waiting for agent at ${AGENT_URL}..."
 until curl -sf "${AGENT_URL}/api/agents" > /dev/null 2>&1; do
+  if [ $(( $(date +%s) - START )) -ge $TIMEOUT ]; then
+    echo "[trigger-index] ERROR: timed out after ${TIMEOUT}s"
+    exit 1
+  fi
   sleep 2
 done
 
