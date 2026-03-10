@@ -58,17 +58,30 @@
     }
     .banner{
       margin:0;
-      color:magenta;
-      text-shadow:0 0 10px rgba(255,0,255,0.45), 0 0 18px rgba(255,0,255,0.22);
-      line-height:1.12;
-      font-size:clamp(0.9rem,2.7vw,0.9rem);
-      white-space:pre;
-      font-family:'Courier New',ui-monospace,monospace;
-      font-kerning:none;
-      font-variant-ligatures:none;
-      letter-spacing:0;
       max-width:100%;
       overflow-x:auto;
+    }
+    .banner-svg{
+      display:block;
+      width:min(100%,42rem);
+      height:auto;
+      filter:drop-shadow(0 0 3px rgba(255,0,255,0.45)) drop-shadow(0 0 18px rgba(255,0,255,0.22));
+    }
+    .banner-text{
+      fill:magenta;
+      font-family:'Courier New',ui-monospace,monospace;
+      font-size:18px;
+      font-weight:700;
+      letter-spacing:0;
+      font-kerning:none;
+      font-variant-ligatures:none;
+      text-rendering:geometricPrecision;
+      dominant-baseline:hanging;
+    }
+    @media (max-width: 640px){
+      .banner-svg{
+        filter:drop-shadow(0 0 6px rgba(255,0,255,0.35));
+      }
     }
     .subtitle{color:#6c7086;margin-top:0.5rem;font-size:0.9rem}
     h2{
@@ -116,7 +129,12 @@
 <body>
   <main>
     <div>
-       <pre class="banner">▀█▀ █▀█ █▀▄▀█   █▄▀ █ █     █ █▀█&#10; █  █▄█ █ ▀ █   █ █ █ █▄▄ █▄█ █▄█</pre>
+      <div class="banner" role="img" aria-label="Tom Kiljo block banner">
+        <svg class="banner-svg" viewBox="0 0 420 46" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" preserveAspectRatio="xMinYMin meet">
+          <text class="banner-text" x="0" y="2"  xml:space="preserve">▀█▀ █▀█ █▀▄▀█   █▄▀ █ █     █ █▀█</text>
+          <text class="banner-text" x="0" y="19" xml:space="preserve"> █  █▄█ █ ▀ █   █ █ █ █▄▄ █▄█ █▄█</text>
+        </svg>
+      </div>
       <p class="subtitle">Welcome to my personal website</p>
     </div>
 
